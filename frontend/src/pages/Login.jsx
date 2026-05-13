@@ -33,45 +33,57 @@ const Login = () => {
 
   return (
     <div style={styles.page}>
-      <div style={styles.mandala}></div>
+      {/* BLURRED BACKGROUND (COVER) */}
+      <div style={styles.bg}></div>
 
-      <div style={styles.card}>
-        <div style={styles.header}>
-          🕉️
-          <h2 style={styles.title}>Sri Raghavendra Swamy Temple</h2>
-          <p style={styles.subtitle}>Administrative Login Portal</p>
+      {/* MAIN CONTENT */}
+      <div style={styles.overlay}>
+        {/* FULL IMAGE (NO CROP) */}
+        <div style={styles.imageBox}>
+          <img
+            src="/raghavendra.jpg"
+            alt="Sri Raghavendra Swamy"
+            style={styles.fullImage}
+          />
         </div>
 
-        <form onSubmit={handleLogin}>
-          <div style={styles.field}>
-            <label style={styles.label}>Username</label>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={styles.input}
-              required
-            />
+        {/* LOGIN CARD */}
+        <div style={styles.card}>
+          <div style={styles.header}>
+            <div style={styles.om}>ॐ</div>
+            <h2 style={styles.title}>Sri Raghavendra Swamy</h2>
+            <p style={styles.subtitle}>Temple Management Portal</p>
           </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-              required
-            />
-          </div>
+          <form onSubmit={handleLogin}>
+            <div style={styles.field}>
+              <label style={styles.label}>Username</label>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={styles.input}
+              />
+            </div>
 
-          <button type="submit" style={styles.button}>
-            Enter Temple Dashboard
-          </button>
-        </form>
+            <div style={styles.field}>
+              <label style={styles.label}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={styles.input}
+              />
+            </div>
 
-        <p style={styles.footer}>
-          “Om Sri Raghavendraya Namaha”
-        </p>
+            <button type="submit" style={styles.button}>
+              Enter Dashboard
+            </button>
+          </form>
+
+          <p style={styles.footer}>
+            “Service to God is Service to Humanity”
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -79,56 +91,89 @@ const Login = () => {
 
 export default Login;
 
-/* ================= TEMPLE STYLES ================= */
+/* ================= STYLES ================= */
 
 const styles = {
   page: {
     height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(180deg, #f7f1e3, #fffaf0)",
+    width: "100%",
     position: "relative",
     overflow: "hidden",
+    fontFamily: "sans-serif",
   },
 
-  mandala: {
+  /* BLURRED BACKGROUND */
+  bg: {
     position: "absolute",
-    width: "600px",
-    height: "600px",
-    background:
-      "radial-gradient(circle, rgba(184,134,11,0.15), transparent 60%)",
-    borderRadius: "50%",
-    top: "-150px",
-    right: "-150px",
-    filter: "blur(2px)",
+    inset: 0,
+    backgroundImage: "url('/raghavendra.jpg')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    filter: "blur(18px) brightness(0.5)",
+    transform: "scale(1.2)",
   },
 
+  /* MAIN LAYOUT */
+  overlay: {
+    position: "relative",
+    height: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: "40px",
+    paddingRight: "6%",
+  },
+
+  /* FULL IMAGE (NO CROPPING) */
+  imageBox: {
+    width: "350px",
+    height: "80vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fullImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain", // ✅ NO CROPPING
+  },
+
+  /* LOGIN CARD */
   card: {
-    width: "380px",
+    width: "90%",
+    maxWidth: "360px",
+
     padding: "30px",
-    borderRadius: "14px",
-    background: "#ffffff",
-    border: "1px solid #e8e1d3",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-    zIndex: 2,
+    borderRadius: "20px",
+
+    background: "rgba(255,255,255,0.15)",
+    backdropFilter: "blur(15px)",
+    WebkitBackdropFilter: "blur(15px)",
+
+    border: "1px solid rgba(255,255,255,0.25)",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
   },
 
   header: {
     textAlign: "center",
-    marginBottom: "25px",
+    marginBottom: "20px",
+  },
+
+  om: {
+    fontSize: "50px",
+    color: "#ffd700",
   },
 
   title: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#5a3e1b",
-    marginTop: "8px",
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#fff",
   },
 
   subtitle: {
     fontSize: "12px",
-    color: "#8b6b3f",
+    color: "#eee",
   },
 
   field: {
@@ -137,36 +182,37 @@ const styles = {
 
   label: {
     fontSize: "12px",
-    color: "#6b4f2a",
+    color: "#fff",
+    marginBottom: "5px",
     display: "block",
-    marginBottom: "6px",
   },
 
   input: {
     width: "100%",
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #e0d6c2",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "none",
     outline: "none",
-    background: "#fffdf8",
+    background: "rgba(255,255,255,0.9)",
   },
 
   button: {
     width: "100%",
-    padding: "11px",
-    borderRadius: "8px",
+    padding: "12px",
+    borderRadius: "10px",
     border: "none",
-    background: "#b8860b",
+    marginTop: "10px",
+    background: "linear-gradient(90deg, #b8860b, #d4af37)",
     color: "white",
     fontWeight: "600",
     cursor: "pointer",
-    marginTop: "10px",
   },
 
   footer: {
     textAlign: "center",
     fontSize: "11px",
-    color: "#8b6b3f",
     marginTop: "15px",
+    color: "#fff",
+    opacity: 0.85,
   },
 };
