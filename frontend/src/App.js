@@ -10,6 +10,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Donations from "./pages/Donations";
 import Expenses from "./pages/Expenses";
 import Inventory from "./pages/Inventory";
+import HallBookings from "./pages/HallBookings";
+import Employees from "./pages/Employees";
 
 function App() {
   return (
@@ -86,6 +88,23 @@ function App() {
   element={
     <ProtectedRoute>
       <Inventory />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/hall-bookings"
+  element={
+    <ProtectedRoute>
+      <HallBookings />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/employees"
+  element={
+    <ProtectedRoute>
+      <Employees />
     </ProtectedRoute>
   }
 />

@@ -7,6 +7,12 @@ const Tickets = () => {
   const [poojas, setPoojas] = useState([]);
   const [search, setSearch] = useState("");
 
+  const [statusFilter, setStatusFilter] =
+    useState("");
+
+  const [poojaFilter, setPoojaFilter] =
+    useState("");
+
   const [form, setForm] = useState({
     poojaName: "",
     devoteeName: "",
@@ -14,6 +20,8 @@ const Tickets = () => {
     date: "",
     price: "",
     quantity: 1,
+    paymentMethod: "Cash",
+    paymentStatus: "Paid",
   });
 
   const token = localStorage.getItem("token");
@@ -74,7 +82,7 @@ const Tickets = () => {
         headers,
       });
 
-      alert("Ticket Created");
+      alert("Ticket Created Successfully");
 
       setForm({
         poojaName: "",
@@ -83,6 +91,8 @@ const Tickets = () => {
         date: "",
         price: "",
         quantity: 1,
+        paymentMethod: "Cash",
+        paymentStatus: "Paid",
       });
 
       fetchTickets();
@@ -98,37 +108,52 @@ const Tickets = () => {
     const win = window.open(
       "",
       "",
-      "width=600,height=600"
+      "width=700,height=700"
     );
 
     win.document.write(`
       <html>
         <head>
-          <title>Receipt</title>
+          <title>Temple Receipt</title>
 
           <style>
-            body {
-              font-family: Arial;
-              padding: 20px;
+            body{
+              font-family:Arial;
+              padding:30px;
+              background:#f7f3ea;
             }
 
-            .box {
-              border: 1px solid #000;
-              padding: 20px;
-              border-radius: 10px;
+            .receipt{
+              background:#fff;
+              border-radius:16px;
+              padding:30px;
+              border:1px solid #ddd;
             }
 
-            h2 {
-              text-align: center;
+            h2{
+              color:#6b4f2a;
+              text-align:center;
+            }
+
+            p{
+              margin:10px 0;
+              font-size:15px;
+            }
+
+            .total{
+              margin-top:20px;
+              font-size:20px;
+              font-weight:bold;
+              color:#3b2f2f;
             }
           </style>
         </head>
 
         <body>
-          <div class="box">
-            <h2>🏛 Temple Receipt</h2>
+          <div class="receipt">
+            <h2>🏛 Temple Ticket Receipt</h2>
 
-            <p><b>Receipt:</b> ${
+            <p><b>Receipt No:</b> ${
               ticket.receiptNo
             }</p>
 
@@ -152,19 +177,22 @@ const Tickets = () => {
               ticket.price
             }</p>
 
-            <p><b>Qty:</b> ${
+            <p><b>Quantity:</b> ${
               ticket.quantity
             }</p>
 
-            <hr />
+            <p><b>Payment Method:</b> ${
+              ticket.paymentMethod
+            }</p>
 
-            <h3>
-              Total: ₹
-              ${
-                ticket.price *
-                ticket.quantity
-              }
-            </h3>
+            <p><b>Status:</b> ${
+              ticket.paymentStatus
+            }</p>
+
+            <div class="total">
+              Total Amount :
+              ₹${ticket.totalAmount}
+            </div>
           </div>
         </body>
       </html>
@@ -173,22 +201,56 @@ const Tickets = () => {
     win.print();
   };
 
-  /* ================= SEARCH FILTER ================= */
+  /* ================= FILTER ================= */
 
-  const filteredTickets = tickets.filter((t) =>
-    `${t.devoteeName} ${t.mobile} ${t.receiptNo}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
+  const filteredTickets = tickets.filter((t) => {
+    const matchesSearch =
+      `${t.devoteeName} ${t.mobile} ${t.receiptNo}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    const matchesStatus =
+      !statusFilter ||
+      t.paymentStatus === statusFilter;
+
+    const matchesPooja =
+      !poojaFilter ||
+      t.poojaName === poojaFilter;
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPooja
+    );
+  });
+
+  /* ================= STATS ================= */
+
+  const totalRevenue = tickets.reduce(
+    (acc, item) =>
+      acc + (item.totalAmount || 0),
+    0
   );
+
+  const totalTickets = tickets.length;
 
   return (
     <MainLayout>
       <div style={styles.page}>
-        <h2 style={styles.title}>
-          🎟 Enterprise Ticket System
-        </h2>
+        <div style={styles.header}>
+          <div>
+            <h2 style={styles.title}>
+              🎟 Enterprise Ticket System
+            </h2>
+
+            <p style={styles.subtitle}>
+              Premium temple ticket management
+            </p>
+          </div>
+        </div>
 
         {/* SEARCH */}
+
         <div style={styles.topBar}>
           <input
             placeholder="Search by name, mobile, receipt..."
@@ -200,34 +262,38 @@ const Tickets = () => {
           />
         </div>
 
-        {/* FORM */}
-        <form
-          onSubmit={handleSubmit}
-          style={styles.form}
-        >
-          {/* POOJA DROPDOWN */}
-          <select
-            name="poojaName"
-            value={form.poojaName}
-            onChange={(e) => {
-              const selected = poojas.find(
-                (p) =>
-                  p.poojaName ===
-                  e.target.value
-              );
+        {/* FILTERS */}
 
-              setForm({
-                ...form,
-                poojaName:
-                  selected?.poojaName || "",
-                price:
-                  selected?.price || "",
-              });
-            }}
+        <div style={styles.filterRow}>
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value)
+            }
             style={styles.input}
           >
             <option value="">
-              Select Pooja
+              All Status
+            </option>
+
+            <option value="Paid">
+              Paid
+            </option>
+
+            <option value="Pending">
+              Pending
+            </option>
+          </select>
+
+          <select
+            value={poojaFilter}
+            onChange={(e) =>
+              setPoojaFilter(e.target.value)
+            }
+            style={styles.input}
+          >
+            <option value="">
+              All Poojas
             </option>
 
             {poojas.map((p) => (
@@ -235,61 +301,152 @@ const Tickets = () => {
                 key={p._id}
                 value={p.poojaName}
               >
-                {p.poojaName} - ₹{p.price}
+                {p.poojaName}
               </option>
             ))}
           </select>
+        </div>
 
-          <input
-            name="devoteeName"
-            placeholder="Devotee Name"
-            onChange={handleChange}
-            value={form.devoteeName}
-            style={styles.input}
-          />
+        {/* STATS */}
 
-          <input
-            name="mobile"
-            placeholder="Mobile"
-            onChange={handleChange}
-            value={form.mobile}
-            style={styles.input}
-          />
+        <div style={styles.statsGrid}>
+          <div style={styles.statsCard}>
+            <h3>{totalTickets}</h3>
+            <p>Total Tickets</p>
+          </div>
 
-          <input
-            type="date"
-            name="date"
-            onChange={handleChange}
-            value={form.date}
-            style={styles.input}
-          />
+          <div style={styles.statsCard}>
+            <h3>₹{totalRevenue}</h3>
+            <p>Total Revenue</p>
+          </div>
+        </div>
 
-          {/* AUTO PRICE */}
-          <input
-            name="price"
-            placeholder="Price"
-            value={form.price}
-            readOnly
-            style={styles.input}
-          />
+        {/* FORM */}
 
-          <input
-            name="quantity"
-            placeholder="Quantity"
-            onChange={handleChange}
-            value={form.quantity}
-            style={styles.input}
-          />
-
-          <button
-            type="submit"
-            style={styles.btn}
+        <div style={styles.formCard}>
+          <form
+            onSubmit={handleSubmit}
+            style={styles.form}
           >
-            + Create Ticket
-          </button>
-        </form>
+            <select
+              name="poojaName"
+              value={form.poojaName}
+              onChange={(e) => {
+                const selected = poojas.find(
+                  (p) =>
+                    p.poojaName ===
+                    e.target.value
+                );
+
+                setForm({
+                  ...form,
+                  poojaName:
+                    selected?.poojaName || "",
+                  price:
+                    selected?.price || "",
+                });
+              }}
+              style={styles.input}
+            >
+              <option value="">
+                Select Pooja
+              </option>
+
+              {poojas.map((p) => (
+                <option
+                  key={p._id}
+                  value={p.poojaName}
+                >
+                  {p.poojaName} - ₹{p.price}
+                </option>
+              ))}
+            </select>
+
+            <input
+              name="devoteeName"
+              placeholder="Devotee Name"
+              onChange={handleChange}
+              value={form.devoteeName}
+              style={styles.input}
+            />
+
+            <input
+              name="mobile"
+              placeholder="Mobile"
+              onChange={handleChange}
+              value={form.mobile}
+              style={styles.input}
+            />
+
+            <input
+              type="date"
+              name="date"
+              onChange={handleChange}
+              value={form.date}
+              style={styles.input}
+            />
+
+            <input
+              name="price"
+              placeholder="Price"
+              value={form.price}
+              readOnly
+              style={styles.input}
+            />
+
+            <input
+              name="quantity"
+              placeholder="Quantity"
+              onChange={handleChange}
+              value={form.quantity}
+              style={styles.input}
+            />
+
+            <select
+              name="paymentMethod"
+              value={form.paymentMethod}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option>
+                Cash
+              </option>
+
+              <option>
+                UPI
+              </option>
+
+              <option>
+                Card
+              </option>
+            </select>
+
+            <select
+              name="paymentStatus"
+              value={form.paymentStatus}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option>
+                Paid
+              </option>
+
+              <option>
+                Pending
+              </option>
+            </select>
+
+            <button
+              type="submit"
+              style={styles.btn}
+            >
+              + Create Ticket
+            </button>
+          </form>
+        </div>
 
         {/* TABLE */}
+
         <div style={styles.tableBox}>
           <table style={styles.table}>
             <thead>
@@ -319,7 +476,11 @@ const Tickets = () => {
                 </th>
 
                 <th style={styles.th}>
-                  Status
+                  Payment
+                </th>
+
+                <th style={styles.th}>
+                  Method
                 </th>
 
                 <th style={styles.th}>
@@ -357,15 +518,31 @@ const Tickets = () => {
                   </td>
 
                   <td style={styles.td}>
-                    ₹
-                    {(t.price || 0) *
-                      (t.quantity || 1)}
+                    ₹{t.totalAmount}
                   </td>
 
                   <td style={styles.td}>
-                    <span style={styles.status}>
-                      Paid
+                    <span
+                      style={{
+                        ...styles.status,
+                        background:
+                          t.paymentStatus ===
+                          "Paid"
+                            ? "#e6f4ea"
+                            : "#fff4e5",
+                        color:
+                          t.paymentStatus ===
+                          "Paid"
+                            ? "#1e7e34"
+                            : "#ff9800",
+                      }}
+                    >
+                      {t.paymentStatus}
                     </span>
+                  </td>
+
+                  <td style={styles.td}>
+                    {t.paymentMethod}
                   </td>
 
                   <td style={styles.td}>
@@ -399,100 +576,132 @@ const styles = {
     minHeight: "100vh",
   },
 
+  header: {
+    marginBottom: "20px",
+  },
+
   title: {
-    fontSize: "20px",
-    marginBottom: "15px",
+    fontSize: "24px",
+    fontWeight: "700",
     color: "#3b2f2f",
-    fontWeight: "600",
+  },
+
+  subtitle: {
+    color: "#6b7280",
+    marginTop: "5px",
   },
 
   topBar: {
-    display: "flex",
-    justifyContent: "space-between",
     marginBottom: "15px",
   },
 
   search: {
-    padding: "10px",
+    padding: "12px",
     width: "100%",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
+    borderRadius: "12px",
+    border: "1px solid #ddd",
+  },
+
+  filterRow: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px",
+  },
+
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(220px,1fr))",
+    gap: "15px",
+    marginBottom: "20px",
+  },
+
+  statsCard: {
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "16px",
+    boxShadow:
+      "0 6px 18px rgba(0,0,0,0.05)",
+  },
+
+  formCard: {
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "18px",
+    marginBottom: "20px",
+    boxShadow:
+      "0 8px 25px rgba(0,0,0,0.05)",
   },
 
   form: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: "10px",
-    marginBottom: "20px",
-    background: "#fff",
-    padding: "15px",
-    borderRadius: "14px",
+      "repeat(auto-fit,minmax(180px,1fr))",
+    gap: "12px",
   },
 
   input: {
-    padding: "10px",
+    padding: "12px",
     borderRadius: "10px",
-    border: "1px solid #ccc",
+    border: "1px solid #ddd",
+    outline: "none",
   },
 
   btn: {
-    background: "#6b4f2a",
+    background:
+      "linear-gradient(135deg,#6b4f2a,#3b2f2f)",
     color: "#fff",
     border: "none",
-    borderRadius: "10px",
-    padding: "10px",
+    borderRadius: "12px",
+    padding: "12px",
     cursor: "pointer",
+    fontWeight: "600",
   },
 
   tableBox: {
     background: "#fff",
-    padding: "16px",
-    borderRadius: "14px",
+    padding: "20px",
+    borderRadius: "18px",
     boxShadow:
-      "0 6px 18px rgba(0,0,0,0.05)",
+      "0 8px 25px rgba(0,0,0,0.05)",
   },
 
   table: {
     width: "100%",
     borderCollapse: "separate",
     borderSpacing: "0 10px",
-    fontSize: "14px",
   },
 
   th: {
     textAlign: "left",
-    padding: "10px 12px",
+    padding: "12px",
     color: "#6b4f2a",
-    fontWeight: "600",
     fontSize: "13px",
   },
 
   tr: {
     background: "#faf7f2",
-    borderRadius: "12px",
   },
 
   td: {
-    padding: "12px",
+    padding: "14px",
     color: "#3b2f2f",
   },
 
   status: {
-    background: "#e6f4ea",
-    color: "#1e7e34",
-    padding: "4px 10px",
-    borderRadius: "20px",
+    padding: "6px 12px",
+    borderRadius: "999px",
     fontSize: "12px",
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   printBtn: {
-    background: "#6b4f2a",
+    background:
+      "linear-gradient(135deg,#6b4f2a,#3b2f2f)",
     color: "#fff",
     border: "none",
-    padding: "6px 10px",
-    borderRadius: "8px",
+    padding: "8px 14px",
+    borderRadius: "10px",
     cursor: "pointer",
   },
 };

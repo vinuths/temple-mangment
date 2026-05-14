@@ -152,6 +152,27 @@ const Sidebar = () => {
             <span>Inventory</span>
           </Link>
         </li>
+        <li>
+  <Link
+    style={{
+      ...styles.link,
+      ...(isActive("/hall-bookings")
+        ? styles.active
+        : {}),
+    }}
+    to="/hall-bookings"
+  >
+    🏛 Hall Bookings
+  </Link>
+</li>
+<li>
+  <Link
+    style={styles.link}
+    to="/employees"
+  >
+    👨‍💼 Employees
+  </Link>
+</li>
       </ul>
     </div>
   );

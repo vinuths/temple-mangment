@@ -12,6 +12,10 @@ const poojaRoutes = require("./routes/poojaRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
+const hallBookingRoutes = require(
+  "./routes/hallBookingRoutes"
+);
+const employeeRoutes = require("./routes/employeeRoutes");
 
 const app = express();
 
@@ -38,6 +42,11 @@ app.use(
   "/api/inventory",
   inventoryRoutes
 );
+app.use(
+  "/api/hall-bookings",
+  hallBookingRoutes
+);
+app.use("/api/employees", employeeRoutes);
 
 app.get("/", (req, res) => {
   res.send("Temple Management API Running");

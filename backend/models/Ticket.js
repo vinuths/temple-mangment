@@ -7,14 +7,53 @@ const ticketSchema = new mongoose.Schema(
       unique: true,
     },
 
-    poojaName: String,
-    devoteeName: String,
-    mobile: String,
-    date: Date,
-    price: Number,
-    quantity: Number,
+    poojaName: {
+      type: String,
+    },
+
+    devoteeName: {
+      type: String,
+    },
+
+    mobile: {
+      type: String,
+    },
+
+    date: {
+      type: Date,
+    },
+
+    price: {
+      type: Number,
+      default: 0,
+    },
+
+    quantity: {
+      type: Number,
+      default: 1,
+    },
+
+    totalAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    paymentMethod: {
+      type: String,
+      default: "Cash",
+    },
+
+    paymentStatus: {
+      type: String,
+      default: "Paid",
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model("Ticket", ticketSchema);
+module.exports = mongoose.model(
+  "Ticket",
+  ticketSchema
+);
