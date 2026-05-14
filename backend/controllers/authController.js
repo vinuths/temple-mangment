@@ -22,7 +22,7 @@ const register = async (req, res) => {
       mobile,
       username,
       password: hashedPassword,
-      role,
+      role: role || "staff", // ✅ SAFE DEFAULT
     });
 
     res.status(201).json({
@@ -40,7 +40,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body; // ✅ optional role
 
     const user = await User.findOne({ username });
 
@@ -57,6 +57,14 @@ const login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid password",
+      });
+    }
+
+    // ✅ ROLE CHECK (SAFE - ONLY IF ROLE SENT)
+    if (role && user.role !== role) {
+      return res.status(400).json({
+        success: false,
+        message: `You are not registered as ${role}`,
       });
     }
 

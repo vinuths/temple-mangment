@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tickets from "./pages/Tickets";
-import Reports from "./pages/Reports"; // ✅ ADD THIS
+import Reports from "./pages/Reports";
 import PoojaAnalytics from "./pages/PoojaAnalytics";
 import PoojaMaster from "./pages/PoojaMaster";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -20,96 +20,106 @@ function App() {
         {/* PUBLIC */}
         <Route path="/" element={<Login />} />
 
-        {/* PROTECTED ROUTES */}
+        {/* ===================== DASHBOARD ===================== */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
               <Dashboard />
             </ProtectedRoute>
           }
         />
 
+        {/* ===================== TICKETS ===================== */}
         <Route
           path="/tickets"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
               <Tickets />
             </ProtectedRoute>
           }
         />
 
+        {/* ===================== ANALYTICS ===================== */}
         <Route
-  path="/pooja-analytics"
-  element={
-    <ProtectedRoute>
-      <PoojaAnalytics />
-    </ProtectedRoute>
-  }
-/>
+          path="/pooja-analytics"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PoojaAnalytics />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* ✅ REPORTS ADDED */}
+        {/* ===================== REPORTS ===================== */}
         <Route
           path="/reports"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Reports />
             </ProtectedRoute>
           }
         />
-<Route
-  path="/pooja-master"
-  element={
-    <ProtectedRoute>
-      <PoojaMaster />
-    </ProtectedRoute>
-  }
-/>
+
+        {/* ===================== MASTER DATA ===================== */}
         <Route
-  path="/donations"
-  element={
-    <ProtectedRoute>
-      <Donations />
-    </ProtectedRoute>
-  }
-/>
+          path="/pooja-master"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PoojaMaster />
+            </ProtectedRoute>
+          }
+        />
 
-<Route
-  path="/expenses"
-  element={
-    <ProtectedRoute>
-      <Expenses />
-    </ProtectedRoute>
-  }
-/>
+        {/* ===================== DONATIONS ===================== */}
+        <Route
+          path="/donations"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Donations />
+            </ProtectedRoute>
+          }
+        />
 
-<Route
-  path="/inventory"
-  element={
-    <ProtectedRoute>
-      <Inventory />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/hall-bookings"
-  element={
-    <ProtectedRoute>
-      <HallBookings />
-    </ProtectedRoute>
-  }
-/>
+        {/* ===================== EXPENSES ===================== */}
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Expenses />
+            </ProtectedRoute>
+          }
+        />
 
-<Route
-  path="/employees"
-  element={
-    <ProtectedRoute>
-      <Employees />
-    </ProtectedRoute>
-  }
-/>
+        {/* ===================== INVENTORY ===================== */}
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Inventory />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ===================== HALL BOOKINGS ===================== */}
+        <Route
+          path="/hall-bookings"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <HallBookings />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ===================== EMPLOYEES ===================== */}
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Employees />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-      
     </BrowserRouter>
   );
 }

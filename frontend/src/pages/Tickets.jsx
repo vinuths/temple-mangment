@@ -12,6 +12,8 @@ const Tickets = () => {
 
   const [poojaFilter, setPoojaFilter] =
     useState("");
+const [editOpen, setEditOpen] = useState(false);
+const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
     poojaName: "",
@@ -201,6 +203,52 @@ const Tickets = () => {
     win.print();
   };
 
+  const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+
+  try {
+    await API.delete(`/tickets/${id}`, { headers });
+    fetchTickets();
+  } catch (error) {
+    console.log(error);
+    alert("Delete failed");
+  }
+};
+
+const openEdit = (t) => {
+  setEditId(t._id);
+
+  setForm({
+    poojaName: t.poojaName,
+    devoteeName: t.devoteeName,
+    mobile: t.mobile,
+    date: t.date?.split("T")[0],
+    price: t.price,
+    quantity: t.quantity,
+    paymentMethod: t.paymentMethod,
+    paymentStatus: t.paymentStatus,
+  });
+
+  setEditOpen(true);
+};
+
+const updateTicket = async (e) => {
+  e.preventDefault();
+
+  try {
+    await API.put(`/tickets/${editId}`, form, { headers });
+
+    alert("Updated Successfully");
+
+    setEditOpen(false);
+    setEditId(null);
+
+    fetchTickets();
+  } catch (error) {
+    console.log(error);
+    alert("Update failed");
+  }
+};
   /* ================= FILTER ================= */
 
   const filteredTickets = tickets.filter((t) => {
@@ -554,11 +602,111 @@ const Tickets = () => {
                     >
                       Print
                     </button>
+                    <button
+  style={styles.editBtn}
+  onClick={() => openEdit(t)}
+>
+  Edit
+</button>
+
+<button
+  style={styles.deleteBtn}
+  onClick={() => handleDelete(t._id)}
+>
+  Delete
+</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {editOpen && (
+  <div style={styles.modalOverlay}>
+    <div style={styles.modal}>
+      <h3 style={{ marginBottom: "10px" }}>Edit Ticket</h3>
+
+      <form onSubmit={updateTicket} style={styles.form}>
+
+        <input
+          name="poojaName"
+          value={form.poojaName}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <input
+          name="devoteeName"
+          value={form.devoteeName}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <input
+          name="mobile"
+          value={form.mobile}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <input
+          name="price"
+          value={form.price}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <input
+          name="quantity"
+          value={form.quantity}
+          onChange={handleChange}
+          style={styles.input}
+        />
+
+        <select
+          name="paymentMethod"
+          value={form.paymentMethod}
+          onChange={handleChange}
+          style={styles.input}
+        >
+          <option>Cash</option>
+          <option>UPI</option>
+          <option>Card</option>
+        </select>
+
+        <select
+          name="paymentStatus"
+          value={form.paymentStatus}
+          onChange={handleChange}
+          style={styles.input}
+        >
+          <option>Paid</option>
+          <option>Pending</option>
+        </select>
+
+        <button type="submit" style={styles.btn}>
+          Update
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setEditOpen(false)}
+          style={styles.deleteBtn}
+        >
+          Close
+        </button>
+
+      </form>
+    </div>
+  </div>
+)}
         </div>
       </div>
     </MainLayout>
@@ -704,4 +852,42 @@ const styles = {
     borderRadius: "10px",
     cursor: "pointer",
   },
+  editBtn: {
+  marginLeft: "6px",
+  background: "#2196f3",
+  color: "#fff",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: "8px",
+  cursor: "pointer",
+},
+
+deleteBtn: {
+  marginLeft: "6px",
+  background: "#e53935",
+  color: "#fff",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: "8px",
+  cursor: "pointer",
+},
+
+modalOverlay: {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0,0,0,0.5)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+modal: {
+  background: "#fff",
+  padding: "20px",
+  borderRadius: "12px",
+  width: "500px",
+},
 };

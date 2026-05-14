@@ -7,6 +7,7 @@ const Login = () => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("admin"); // ✅ NEW
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,12 +21,20 @@ const Login = () => {
       const response = await API.post("/auth/login", {
         username,
         password,
+        role, // ✅ SEND ROLE
       });
 
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const { token, user } = response.data;
 
-      navigate("/dashboard");
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ ROLE BASED NAVIGATION
+      if (user.role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/tickets");
+      }
     } catch (error) {
       alert(error?.response?.data?.message || "Login failed");
     }
@@ -33,12 +42,9 @@ const Login = () => {
 
   return (
     <div style={styles.page}>
-      {/* BLURRED BACKGROUND (COVER) */}
       <div style={styles.bg}></div>
 
-      {/* MAIN CONTENT */}
       <div style={styles.overlay}>
-        {/* FULL IMAGE (NO CROP) */}
         <div style={styles.imageBox}>
           <img
             src="/raghavendra.jpg"
@@ -47,7 +53,6 @@ const Login = () => {
           />
         </div>
 
-        {/* LOGIN CARD */}
         <div style={styles.card}>
           <div style={styles.header}>
             <div style={styles.om}>ॐ</div>
@@ -73,6 +78,19 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 style={styles.input}
               />
+            </div>
+
+            {/* ✅ ROLE SELECT */}
+            <div style={styles.field}>
+              <label style={styles.label}>Login As</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                style={styles.input}
+              >
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+              </select>
             </div>
 
             <button type="submit" style={styles.button}>
@@ -102,7 +120,6 @@ const styles = {
     fontFamily: "sans-serif",
   },
 
-  /* BLURRED BACKGROUND */
   bg: {
     position: "absolute",
     inset: 0,
@@ -113,7 +130,6 @@ const styles = {
     transform: "scale(1.2)",
   },
 
-  /* MAIN LAYOUT */
   overlay: {
     position: "relative",
     height: "100%",
@@ -124,7 +140,6 @@ const styles = {
     paddingRight: "6%",
   },
 
-  /* FULL IMAGE (NO CROPPING) */
   imageBox: {
     width: "350px",
     height: "80vh",
@@ -136,21 +151,16 @@ const styles = {
   fullImage: {
     width: "100%",
     height: "100%",
-    objectFit: "contain", // ✅ NO CROPPING
+    objectFit: "contain",
   },
 
-  /* LOGIN CARD */
   card: {
     width: "90%",
     maxWidth: "360px",
-
     padding: "30px",
     borderRadius: "20px",
-
     background: "rgba(255,255,255,0.15)",
     backdropFilter: "blur(15px)",
-    WebkitBackdropFilter: "blur(15px)",
-
     border: "1px solid rgba(255,255,255,0.25)",
     boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
   },
