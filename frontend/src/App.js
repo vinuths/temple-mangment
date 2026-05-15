@@ -12,7 +12,7 @@ import Expenses from "./pages/Expenses";
 import Inventory from "./pages/Inventory";
 import HallBookings from "./pages/HallBookings";
 import Employees from "./pages/Employees";
-
+import Users from "./pages/Users";
 function App() {
   return (
     <BrowserRouter>
@@ -21,101 +21,139 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* ===================== DASHBOARD ===================== */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "staff"]}>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="dashboard"
+    >
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== TICKETS ===================== */}
-        <Route
-          path="/tickets"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "staff"]}>
-              <Tickets />
-            </ProtectedRoute>
-          }
-        />
+       <Route
+  path="/tickets"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="tickets"
+    >
+      <Tickets />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== ANALYTICS ===================== */}
-        <Route
-          path="/pooja-analytics"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <PoojaAnalytics />
-            </ProtectedRoute>
-          }
-        />
+       <Route
+  path="/pooja-analytics"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="poojaAnalytics"
+    >
+      <PoojaAnalytics />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== REPORTS ===================== */}
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
+    <Route
+  path="/reports"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="reports"
+    >
+      <Reports />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== MASTER DATA ===================== */}
-        <Route
-          path="/pooja-master"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <PoojaMaster />
-            </ProtectedRoute>
-          }
-        />
+       <Route
+  path="/pooja-master"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="poojaMaster"
+    >
+      <PoojaMaster />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== DONATIONS ===================== */}
-        <Route
-          path="/donations"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "staff"]}>
-              <Donations />
-            </ProtectedRoute>
-          }
-        />
+       <Route
+  path="/donations"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="donations"
+    >
+      <Donations />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== EXPENSES ===================== */}
         <Route
-          path="/expenses"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Expenses />
-            </ProtectedRoute>
-          }
-        />
+  path="/expenses"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="expenses"
+    >
+      <Expenses />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== INVENTORY ===================== */}
         <Route
-          path="/inventory"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "staff"]}>
-              <Inventory />
-            </ProtectedRoute>
-          }
-        />
+  path="/inventory"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="inventory"
+    >
+      <Inventory />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== HALL BOOKINGS ===================== */}
-        <Route
-          path="/hall-bookings"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "staff"]}>
-              <HallBookings />
-            </ProtectedRoute>
-          }
-        />
+       <Route
+  path="/hall-bookings"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="hallBookings"
+    >
+      <HallBookings />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ===================== EMPLOYEES ===================== */}
+      <Route
+  path="/employees"
+  element={
+    <ProtectedRoute
+      allowedRoles={["admin", "staff"]}
+      moduleName="employees"
+    >
+      <Employees />
+    </ProtectedRoute>
+  }
+/>
         <Route
-          path="/employees"
+          path="/users"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <Employees />
+              <Users />
             </ProtectedRoute>
           }
         />

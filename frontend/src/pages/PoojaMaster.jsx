@@ -16,6 +16,15 @@ const PoojaMaster = () => {
 
   const token = localStorage.getItem("token");
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const permissions = user?.permissions || [];
+  const isAdmin = user?.role === "admin";
+
+  // ✅ PERMISSION FLAGS
+  const canCreate = isAdmin || permissions.includes("pooja_create");
+  const canEdit = isAdmin || permissions.includes("pooja_edit");
+  const canDelete = isAdmin || permissions.includes("pooja_delete");
+
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -23,7 +32,7 @@ const PoojaMaster = () => {
   // FETCH
   const fetchPoojas = async () => {
     const res = await API.get("/poojas", { headers });
-    setPoojas(res.data.poojas);
+    setPoojas(res.data.poojas || []);
   };
 
   useEffect(() => {
@@ -39,18 +48,22 @@ const PoojaMaster = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await API.post("/poojas", form, { headers });
+    try {
+      await API.post("/poojas", form, { headers });
 
-    setForm({
-      poojaName: "",
-      price: "",
-      description: "",
-    });
+      setForm({
+        poojaName: "",
+        price: "",
+        description: "",
+      });
 
-    fetchPoojas();
+      fetchPoojas();
+    } catch (error) {
+      alert("Create failed");
+    }
   };
 
-  // OPEN EDIT MODAL
+  // OPEN EDIT
   const openEditModal = (pooja) => {
     setForm({
       poojaName: pooja.poojaName,
@@ -64,26 +77,34 @@ const PoojaMaster = () => {
 
   // UPDATE
   const handleUpdate = async () => {
-    await API.put(`/poojas/${editId}`, form, { headers });
+    try {
+      await API.put(`/poojas/${editId}`, form, { headers });
 
-    setShowModal(false);
-    setEditId(null);
+      setShowModal(false);
+      setEditId(null);
 
-    setForm({
-      poojaName: "",
-      price: "",
-      description: "",
-    });
+      setForm({
+        poojaName: "",
+        price: "",
+        description: "",
+      });
 
-    fetchPoojas();
+      fetchPoojas();
+    } catch (error) {
+      alert("Update failed");
+    }
   };
 
   // DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this Pooja?")) return;
 
-    await API.delete(`/poojas/${id}`, { headers });
-    fetchPoojas();
+    try {
+      await API.delete(`/poojas/${id}`, { headers });
+      fetchPoojas();
+    } catch (error) {
+      alert("Delete failed");
+    }
   };
 
   return (
@@ -91,78 +112,86 @@ const PoojaMaster = () => {
       <div style={styles.page}>
         <h2 style={styles.title}>🛕 Pooja Master</h2>
 
-        {/* ADD FORM */}
-        <div style={styles.card}>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <input
-              name="poojaName"
-              placeholder="Pooja Name"
-              value={form.poojaName}
-              onChange={handleChange}
-              style={styles.input}
-            />
+        {/* ================= CREATE FORM ================= */}
+        {canCreate && (
+          <div style={styles.card}>
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <input
+                name="poojaName"
+                placeholder="Pooja Name"
+                value={form.poojaName}
+                onChange={handleChange}
+                style={styles.input}
+              />
 
-            <input
-              name="price"
-              placeholder="Price"
-              value={form.price}
-              onChange={handleChange}
-              style={styles.input}
-            />
+              <input
+                name="price"
+                placeholder="Price"
+                value={form.price}
+                onChange={handleChange}
+                style={styles.input}
+              />
 
-            <input
-              name="description"
-              placeholder="Description"
-              value={form.description}
-              onChange={handleChange}
-              style={styles.input}
-            />
+              <input
+                name="description"
+                placeholder="Description"
+                value={form.description}
+                onChange={handleChange}
+                style={styles.input}
+              />
 
-            <button type="submit" style={styles.btn}>
-              + Add Pooja
-            </button>
-          </form>
+              <button type="submit" style={styles.btn}>
+                + Add Pooja
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* ================= TABLE ================= */}
+        <div style={styles.tableCard}>
+          <table style={styles.table}>
+            <thead>
+              <tr style={styles.theadRow}>
+                <th style={styles.th}>Pooja Name</th>
+                <th style={styles.th}>Price</th>
+                <th style={styles.th}>Description</th>
+                <th style={styles.th}>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {poojas.map((p) => (
+                <tr key={p._id} style={styles.tr}>
+                  <td style={styles.td}>{p.poojaName}</td>
+                  <td style={styles.td}>₹{p.price}</td>
+                  <td style={styles.td}>{p.description}</td>
+
+                  {/* ================= ACTIONS ================= */}
+                  <td style={styles.td}>
+                    {canEdit && (
+                      <button
+                        onClick={() => openEditModal(p)}
+                        style={styles.editBtn}
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDelete(p._id)}
+                        style={styles.deleteBtn}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-      {/* TABLE */}
-<div style={styles.tableCard}>
-  <table style={styles.table}>
-    <thead>
-      <tr style={styles.theadRow}>
-        <th style={styles.th}>Pooja Name</th>
-        <th style={styles.th}>Price</th>
-        <th style={styles.th}>Description</th>
-        <th style={styles.th}>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {poojas.map((p) => (
-        <tr key={p._id} style={styles.tr}>
-          <td style={styles.td}>{p.poojaName}</td>
-          <td style={styles.td}>₹{p.price}</td>
-          <td style={styles.td}>{p.description}</td>
-
-          <td style={styles.td}>
-            <button
-              onClick={() => openEditModal(p)}
-              style={styles.editBtn}
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={() => handleDelete(p._id)}
-              style={styles.deleteBtn}
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
         {/* ================= EDIT MODAL ================= */}
         {showModal && (
           <div style={styles.modalOverlay}>
@@ -211,6 +240,8 @@ const PoojaMaster = () => {
 };
 
 export default PoojaMaster;
+
+/* ================= STYLES ================= */
 const styles = {
   page: { padding: "20px", background: "#f7f3ea", minHeight: "100vh" },
 
@@ -248,6 +279,35 @@ const styles = {
     borderRadius: "12px",
   },
 
+  table: {
+    width: "100%",
+    borderCollapse: "separate",
+    borderSpacing: "0 12px",
+    fontSize: "14px",
+  },
+
+  theadRow: {
+    background: "#f1e9dd",
+  },
+
+  th: {
+    textAlign: "left",
+    padding: "12px 15px",
+    color: "#5a4632",
+    fontWeight: "600",
+    fontSize: "13px",
+    borderBottom: "1px solid #e0d6c8",
+  },
+
+  tr: {
+    background: "#faf7f2",
+  },
+
+  td: {
+    padding: "14px 15px",
+    color: "#3b2f2f",
+  },
+
   editBtn: {
     marginRight: "8px",
     background: "#2196f3",
@@ -265,7 +325,6 @@ const styles = {
     borderRadius: "6px",
   },
 
-  /* MODAL */
   modalOverlay: {
     position: "fixed",
     top: 0,
@@ -309,39 +368,4 @@ const styles = {
     padding: "8px 12px",
     borderRadius: "6px",
   },
-  table: {
-  width: "100%",
-  borderCollapse: "separate",
-  borderSpacing: "0 12px",
-  fontSize: "14px",
-},
-
-theadRow: {
-  background: "#f1e9dd",
-},
-
-th: {
-  textAlign: "left",
-  padding: "12px 15px",
-  color: "#5a4632",
-  fontWeight: "600",
-  fontSize: "13px",
-  borderBottom: "1px solid #e0d6c8",
-},
-
-tr: {
-  background: "#faf7f2",
-  transition: "0.2s",
-},
-
-td: {
-  padding: "14px 15px",
-  color: "#3b2f2f",
-  borderBottom: "1px solid #eee",
-},
-
-/* hover effect */
-trHover: {
-  background: "#f4efe7",
-},
 };

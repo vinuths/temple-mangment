@@ -14,6 +14,9 @@ const Tickets = () => {
     useState("");
 const [editOpen, setEditOpen] = useState(false);
 const [editId, setEditId] = useState(null);
+const user = JSON.parse(localStorage.getItem("user"));
+const permissions = user?.permissions || [];
+const isAdmin = user?.role === "admin";
 
   const [form, setForm] = useState({
     poojaName: "",
@@ -602,19 +605,17 @@ const updateTicket = async (e) => {
                     >
                       Print
                     </button>
-                    <button
-  style={styles.editBtn}
-  onClick={() => openEdit(t)}
->
-  Edit
-</button>
+{(isAdmin || permissions.includes("tickets_edit")) && (
+  <button style={styles.editBtn} onClick={() => openEdit(t)}>
+    Edit
+  </button>
+)}
 
-<button
-  style={styles.deleteBtn}
-  onClick={() => handleDelete(t._id)}
->
-  Delete
-</button>
+{(isAdmin || permissions.includes("tickets_delete")) && (
+  <button style={styles.deleteBtn} onClick={() => handleDelete(t._id)}>
+    Delete
+  </button>
+)}
                   </td>
                 </tr>
               ))}

@@ -16,6 +16,7 @@ const hallBookingRoutes = require(
   "./routes/hallBookingRoutes"
 );
 const employeeRoutes = require("./routes/employeeRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use("/api/employees", employeeRoutes);
 app.get("/", (req, res) => {
   res.send("Temple Management API Running");
 });
+app.use("/api/users", userRoutes);
 
 mongoose
   .connect(process.env.MONGO_URL)
