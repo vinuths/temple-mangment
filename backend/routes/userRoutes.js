@@ -1,41 +1,30 @@
 const express = require("express");
-
 const router = express.Router();
 
 const authMiddleware = require("../middleware/authMiddleware");
-
 const adminMiddleware = require("../middleware/adminMiddleware");
 
 const {
   createStaff,
   getUsers,
   getUserPermissions,
+  updateUser,
+  deleteUser,
 } = require("../controllers/userController");
 
-/* ================= CREATE STAFF ================= */
+/* CREATE */
+router.post("/create", authMiddleware, adminMiddleware, createStaff);
 
-router.post(
-  "/create",
-  authMiddleware,
-  adminMiddleware,
-  createStaff
-);
+/* GET USERS */
+router.get("/", authMiddleware, adminMiddleware, getUsers);
 
-/* ================= GET USERS ================= */
+/* GET PERMISSIONS */
+router.get("/permissions/:id", authMiddleware, getUserPermissions);
 
-router.get(
-  "/",
-  authMiddleware,
-  adminMiddleware,
-  getUsers
-);
+/* UPDATE USER */
+router.put("/:id", authMiddleware, adminMiddleware, updateUser);
 
-/* ================= GET USER PERMISSIONS ================= */
-
-router.get(
-  "/permissions/:id",
-  authMiddleware,
-  getUserPermissions
-);
+/* DELETE USER */
+router.delete("/:id", authMiddleware, adminMiddleware, deleteUser);
 
 module.exports = router;

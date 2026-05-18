@@ -13,6 +13,9 @@ const Users = () => {
     permissions: [],
   });
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
+
   const token = localStorage.getItem("token");
 
   const headers = {
@@ -21,26 +24,22 @@ const Users = () => {
 
   const modulesList = [
     "dashboard",
- "tickets",
- "reports",
- "poojaAnalytics",
- "poojaMaster",
- "donations",
- "expenses",
- "inventory",
- "hallBookings",
- "employees"
-
+    "tickets",
+    "reports",
+    "poojaAnalytics",
+    "poojaMaster",
+    "donations",
+    "expenses",
+    "inventory",
+    "hallBookings",
+    "employees",
   ];
 
   /* ================= FETCH USERS ================= */
 
   const fetchUsers = async () => {
     try {
-      const res = await API.get("/users", {
-        headers,
-      });
-
+      const res = await API.get("/users", { headers });
       setUsers(res.data.users || []);
     } catch (error) {
       console.log(error);
@@ -66,17 +65,12 @@ const Users = () => {
     if (form.permissions.includes(module)) {
       setForm({
         ...form,
-        permissions: form.permissions.filter(
-          (p) => p !== module
-        ),
+        permissions: form.permissions.filter((p) => p !== module),
       });
     } else {
       setForm({
         ...form,
-        permissions: [
-          ...form.permissions,
-          module,
-        ],
+        permissions: [...form.permissions, module],
       });
     }
   };
@@ -87,13 +81,7 @@ const Users = () => {
     e.preventDefault();
 
     try {
-      await API.post(
-        "/users/create",
-        form,
-        {
-          headers,
-        }
-      );
+      await API.post("/users/create", form, { headers });
 
       alert("Staff Created Successfully");
 
@@ -108,28 +96,85 @@ const Users = () => {
       fetchUsers();
     } catch (error) {
       console.log(error);
+      alert(error.response?.data?.message || "Failed");
+    }
+  };
 
-      alert(
-        error.response?.data?.message ||
-          "Failed"
-      );
+  /* ================= OPEN EDIT ================= */
+const fetchPermissions = async (userId) => {
+  try {
+    const res = await API.get(`/users/permissions/${userId}`, { headers });
+    return res.data.permissions?.modules || [];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+ const openEdit = async (user) => {
+  setEditId(user._id);
+
+  const permissions = await fetchPermissions(user._id); // 🔥 REAL FIX
+
+  setForm({
+    name: user.name,
+    mobile: user.mobile,
+    username: user.username,
+    password: "",
+    permissions: permissions, // ✅ FIXED
+  });
+
+  setEditOpen(true);
+};
+  /* ================= UPDATE USER ================= */
+
+  const updateUser = async (e) => {
+    e.preventDefault();
+
+    try {
+      await API.put(`/users/${editId}`, form, { headers });
+
+      alert("User Updated");
+
+      setEditOpen(false);
+      setEditId(null);
+
+      setForm({
+        name: "",
+        mobile: "",
+        username: "",
+        password: "",
+        permissions: [],
+      });
+
+      fetchUsers();
+    } catch (err) {
+      console.log(err);
+      alert("Update failed");
+    }
+  };
+
+  /* ================= DELETE USER ================= */
+
+  const deleteUser = async (id) => {
+    if (!window.confirm("Delete this user?")) return;
+
+    try {
+      await API.delete(`/users/${id}`, { headers });
+      fetchUsers();
+    } catch (err) {
+      console.log(err);
+      alert("Delete failed");
     }
   };
 
   return (
     <MainLayout>
       <div style={styles.page}>
-        <h2 style={styles.title}>
-          👨‍💼 User Management
-        </h2>
+        <h2 style={styles.title}>👨‍💼 User Management</h2>
 
-        {/* FORM */}
-
+        {/* FORM (UNCHANGED) */}
         <div style={styles.card}>
-          <form
-            onSubmit={handleSubmit}
-            style={styles.form}
-          >
+          <form onSubmit={handleSubmit} style={styles.form}>
             <input
               type="text"
               name="name"
@@ -170,96 +215,129 @@ const Users = () => {
               required
             />
 
-            {/* PERMISSIONS */}
-
+            {/* PERMISSIONS (UNCHANGED UI) */}
             <div style={styles.permissionsBox}>
-              <h4>
-                Module Permissions
-              </h4>
+              <h4>Module Permissions</h4>
 
               <div style={styles.permissionsGrid}>
                 {modulesList.map((module) => (
-                  <label
-                    key={module}
-                    style={styles.checkboxLabel}
-                  >
+                  <label key={module} style={styles.checkboxLabel}>
                     <input
                       type="checkbox"
-                      checked={form.permissions.includes(
-                        module
-                      )}
-                      onChange={() =>
-                        handlePermission(
-                          module
-                        )
-                      }
+                      checked={form.permissions.includes(module)}
+                      onChange={() => handlePermission(module)}
                     />
-
                     {module}
                   </label>
                 ))}
               </div>
             </div>
 
-            <button
-              type="submit"
-              style={styles.btn}
-            >
+            <button type="submit" style={styles.btn}>
               + Create Staff
             </button>
           </form>
         </div>
 
-        {/* USERS TABLE */}
-
+        {/* USERS TABLE (ONLY ACTION ADDED) */}
         <div style={styles.card}>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>
-                  Name
-                </th>
-
-                <th style={styles.th}>
-                  Mobile
-                </th>
-
-                <th style={styles.th}>
-                  Username
-                </th>
-
-                <th style={styles.th}>
-                  Role
-                </th>
+                <th style={styles.th}>Name</th>
+                <th style={styles.th}>Mobile</th>
+                <th style={styles.th}>Username</th>
+                <th style={styles.th}>Role</th>
+                <th style={styles.th}>Actions</th>
               </tr>
             </thead>
 
             <tbody>
               {users.map((user) => (
-                <tr
-                  key={user._id}
-                  style={styles.tr}
-                >
-                  <td style={styles.td}>
-                    {user.name}
-                  </td>
+                <tr key={user._id} style={styles.tr}>
+                  <td style={styles.td}>{user.name}</td>
+                  <td style={styles.td}>{user.mobile}</td>
+                  <td style={styles.td}>{user.username}</td>
+                  <td style={styles.td}>{user.role}</td>
 
                   <td style={styles.td}>
-                    {user.mobile}
-                  </td>
+                    <button
+                      onClick={() => openEdit(user)}
+                      style={styles.editBtn}
+                    >
+                      Edit
+                    </button>
 
-                  <td style={styles.td}>
-                    {user.username}
-                  </td>
-
-                  <td style={styles.td}>
-                    {user.role}
+                    <button
+                      onClick={() => deleteUser(user._id)}
+                      style={styles.deleteBtn}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {/* EDIT MODAL (NEW ONLY, UI SIMPLE BUT SAFE) */}
+        {editOpen && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modal}>
+              <h3>Edit User</h3>
+
+              <form onSubmit={updateUser} style={styles.form}>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  style={styles.input}
+                />
+
+                <input
+                  name="mobile"
+                  value={form.mobile}
+                  onChange={handleChange}
+                  style={styles.input}
+                />
+
+                <input
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  style={styles.input}
+                />
+
+                {/* PERMISSIONS EDIT (IMPORTANT FIX INCLUDED) */}
+                <div style={styles.permissionsGrid}>
+                  {modulesList.map((module) => (
+                    <label key={module} style={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={form.permissions.includes(module)}
+                        onChange={() => handlePermission(module)}
+                      />
+                      {module}
+                    </label>
+                  ))}
+                </div>
+
+                <button type="submit" style={styles.btn}>
+                  Update
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(false)}
+                  style={styles.deleteBtn}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
